@@ -295,7 +295,7 @@ let gruppoCorrente = 'A';
 function G(){ return db[gruppoCorrente]; }
 
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────
-let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-7TfHp0148JtbtHmeHHEDkgETdkobzkHtbkFbqoNpreWco42fvH9t9AZpYdWuSpAB/exec";
+let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwl3UAK1Eh7ptXL_jWwlmXzX2dy1oL5jf3En-MaBf65UKvGSaQgtA9FDXvJQjY3dHp1/exec";
 let syncPending = false;
 let syncTimer = null;
 
@@ -341,8 +341,24 @@ async function loadFromSheets(gruppo) {
       });
       db[gruppo].presenze = presenzeNorm;
     }
-    if (data.argomenti && data.argomenti.length) db[gruppo].argomenti = data.argomenti;
-    if (data.voti && data.voti.length) db[gruppo].voti = data.voti;
+    if (data.argomenti && data.argomenti.length) {
+      db[gruppo].argomenti = data.argomenti.map(a => ({
+        id:     String(a.id     || ''),
+        data:   String(a.data   || '').substring(0, 10), // forza YYYY-MM-DD, rimuove eventuale T00:00:00Z
+        titolo: String(a.titolo || ''),
+        note:   String(a.note   || '')
+      }));
+    }
+    if (data.voti && data.voti.length) {
+      db[gruppo].voti = data.voti.map(v => ({
+        id:      String(v.id      || ''),
+        sid:     String(v.sid     || ''),
+        data:    String(v.data    || '').substring(0, 10),
+        materia: String(v.materia || ''),
+        val:     parseFloat(v.val) || 0,
+        note:    String(v.note    || '')
+      }));
+    }
     setSyncStatus('ok', 'Sincronizzato — ' + new Date().toLocaleTimeString('it-IT'));
     aggiornaSelezioniStudenti();
     // Non chiama renderTabCorrente qui — ci pensa l'init dopo che entrambi i gruppi sono pronti
