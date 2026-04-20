@@ -85,6 +85,7 @@ select option{background:#1a1a1a;color:#e8e6e0;}
     <div class="sync-dot" id="sync-dot"></div>
     <span id="sync-label">Non configurato</span>
   </div>
+  <button class="btn-config" onclick="openModal('modal-config')">⚙ Configura Google Sheets</button>
   <button class="btn-config" id="btn-sync" onclick="syncNow()" style="display:none">↑ Salva su Sheets</button>
 </div>
 
@@ -188,6 +189,24 @@ select option{background:#1a1a1a;color:#e8e6e0;}
       </thead>
       <tbody id="tbody-gestisci"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- MODAL CONFIG GOOGLE SHEETS -->
+<div class="modal-bg" id="modal-config">
+  <div class="modal">
+    <h3>Configura Google Sheets</h3>
+    <div class="info-box">
+      Incolla qui l'URL del tuo <strong>Google Apps Script</strong> pubblicato come Web App.<br>
+      Lo trovi in Apps Script → <code>Distribuisci → Nuova distribuzione → App web</code><br>
+      Accesso: <code>Chiunque</code>
+    </div>
+    <label>URL Google Apps Script</label>
+    <input type="text" id="m-script-url" placeholder="https://script.google.com/macros/s/.../exec">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-config')">Annulla</button>
+      <button class="btn primary" onclick="salvaConfig()">Salva e connetti</button>
+    </div>
   </div>
 </div>
 
@@ -357,6 +376,18 @@ function setSyncStatus(stato, msg) {
   dot.className = 'sync-dot ' + stato;
   label.textContent = msg;
   if (SCRIPT_URL) btnSync.style.display = 'inline-block';
+}
+
+function salvaConfig() {
+  const url = document.getElementById('m-script-url').value.trim();
+  if (!url.startsWith('https://script.google.com')) {
+    alert('URL non valido. Deve iniziare con https://script.google.com');
+    return;
+  }
+  SCRIPT_URL = url;
+  localStorage.setItem('baytul_script_url', url);
+  closeModal('modal-config');
+  loadFromSheets(gruppoCorrente);
 }
 
 // ─── SYNC: CARICA DA SHEETS ──────────────────────────────
