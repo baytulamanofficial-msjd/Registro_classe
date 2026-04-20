@@ -334,10 +334,14 @@ const db = {
 let gruppoCorrente = 'A';
 function G(){ return db[gruppoCorrente]; }
 
+// ─── DIRTY FLAG — ri-renderizza tab solo se i dati sono cambiati ─────
+const dirty = { presenze: true, argomenti: true, voti: true, riepilogo: true, gestisci: true };
+function markDirty(sezione){ dirty[sezione] = true; }
+function markDirtyAll(){ Object.keys(dirty).forEach(k => dirty[k] = true); }
+function dirtyAll(){ markDirtyAll(); } // alias usato dopo loadFromSheets
+
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────
 let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-7TfHp0148JtbtHmeHHEDkgETdkobzkHtbkFbqoNpreWco42fvH9t9AZpYdWuSpAB/exec";
-let syncPending = false;
-let syncTimer = null;
 
 function setSyncStatus(stato, msg) {
   const dot = document.getElementById('sync-dot');
@@ -384,7 +388,7 @@ async function loadFromSheets(gruppo) {
     if (data.argomenti && data.argomenti.length) {
       db[gruppo].argomenti = data.argomenti.map(a => ({
         id:     String(a.id     || ''),
-        data:   String(a.data   || '').substring(0, 10), // forza YYYY-MM-DD, rimuove eventuale T00:00:00Z
+        data:   String(a.data   || '').substring(0, 10),
         titolo: String(a.titolo || ''),
         note:   String(a.note   || '')
       }));
@@ -400,23 +404,19 @@ async function loadFromSheets(gruppo) {
       }));
     }
     setSyncStatus('ok', 'Sincronizzato — ' + new Date().toLocaleTimeString('it-IT'));
+    // Invalida tutte le tab così al prossimo accesso si ri-renderizzano
+    dirtyAll();
     aggiornaSelezioniStudenti();
-    // Non chiama renderTabCorrente qui — ci pensa l'init dopo che entrambi i gruppi sono pronti
   } catch(e) {
     setSyncStatus('error', 'Errore: ' + e.message);
   }
 }
 
-// ─── SYNC: SALVA SU SHEETS (con debounce 2s) ─────────────
-function scheduleSave() {
-  if (!SCRIPT_URL) return;
-  setSyncStatus('loading', 'In salvataggio...');
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => saveToSheets(gruppoCorrente), 2000);
-}
+// ─── SYNC: SALVA SU SHEETS ───────────────────────────────
+// Timer separato per sezione — evita di risalvare tutto per una singola modifica
+const saveTimers = {};
 
 async function gsFetch(action, gruppo, payload) {
-  // Usa GET con i parametri — Apps Script accetta solo GET per doGet
   const url = SCRIPT_URL
     + '?action=' + action
     + '&gruppo=' + gruppo
@@ -427,29 +427,53 @@ async function gsFetch(action, gruppo, payload) {
   return json;
 }
 
-async function saveToSheets(gruppo) {
+// scheduleSave(sezione) — salva solo la sezione modificata dopo 4s di inattività
+// sezioni valide: 'studenti' | 'presenze' | 'argomenti' | 'voti' | 'all'
+function scheduleSave(sezione) {
   if (!SCRIPT_URL) return;
-  // Flag anti-doppio-salvataggio
-  if (saveToSheets._running) return;
-  saveToSheets._running = true;
-  try {
-    const g = db[gruppo];
-    // Sequenziale per evitare conflitti sul foglio Google
-    await gsFetch('saveStudenti',  gruppo, g.studenti);
-    await gsFetch('savePresenze',  gruppo, g.presenze);
-    await gsFetch('saveArgomenti', gruppo, g.argomenti);
-    await gsFetch('saveVoti',      gruppo, g.voti);
-    setSyncStatus('ok', 'Salvato — ' + new Date().toLocaleTimeString('it-IT'));
-  } catch(e) {
-    setSyncStatus('error', 'Errore: ' + e.message);
-  } finally {
-    saveToSheets._running = false;
-  }
+  const gruppo = gruppoCorrente;
+  const key = gruppo + '_' + sezione;
+  clearTimeout(saveTimers[key]);
+  saveTimers[key] = setTimeout(async () => {
+    try {
+      const g = db[gruppo];
+      if (sezione === 'all') {
+        // Salva tutto in sequenza — usato solo da syncNow manuale
+        await gsFetch('saveStudenti',  gruppo, g.studenti);
+        await gsFetch('savePresenze',  gruppo, g.presenze);
+        await gsFetch('saveArgomenti', gruppo, g.argomenti);
+        await gsFetch('saveVoti',      gruppo, g.voti);
+      } else {
+        // Salva solo la sezione modificata — 1 fetch invece di 4
+        const actionMap = {
+          studenti:  'saveStudenti',
+          presenze:  'savePresenze',
+          argomenti: 'saveArgomenti',
+          voti:      'saveVoti'
+        };
+        await gsFetch(actionMap[sezione], gruppo, g[sezione]);
+      }
+      setSyncStatus('ok', 'Salvato — ' + new Date().toLocaleTimeString('it-IT'));
+    } catch(e) {
+      setSyncStatus('error', 'Errore: ' + e.message);
+    }
+  }, 4000); // debounce 4 secondi
 }
 
 async function syncNow() {
-  clearTimeout(syncTimer);
-  await saveToSheets(gruppoCorrente);
+  // Cancella tutti i timer pendenti e salva tutto subito
+  Object.keys(saveTimers).forEach(k => clearTimeout(saveTimers[k]));
+  setSyncStatus('loading', 'Salvataggio completo...');
+  try {
+    const g = db[gruppoCorrente];
+    await gsFetch('saveStudenti',  gruppoCorrente, g.studenti);
+    await gsFetch('savePresenze',  gruppoCorrente, g.presenze);
+    await gsFetch('saveArgomenti', gruppoCorrente, g.argomenti);
+    await gsFetch('saveVoti',      gruppoCorrente, g.voti);
+    setSyncStatus('ok', 'Salvato — ' + new Date().toLocaleTimeString('it-IT'));
+  } catch(e) {
+    setSyncStatus('error', 'Errore: ' + e.message);
+  }
 }
 
 // ─── UTILITY ─────────────────────────────────────────────
@@ -504,6 +528,7 @@ function getAnnoMese(){
 function cambiaGruppo(){
   gruppoCorrente = document.getElementById('sel-gruppo').value;
   aggiornaSelezioniStudenti();
+  markDirtyAll();
   if(SCRIPT_URL) loadFromSheets(gruppoCorrente).then(renderTabCorrente);
   else renderTabCorrente();
 }
@@ -518,11 +543,12 @@ function switchTab(t){
   document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['presenze','argomenti','voti','riepilogo','gestisci'][i]===t));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
-  if(t==='presenze') renderPresenze();
-  if(t==='argomenti') renderArgomenti();
-  if(t==='voti') renderVoti();
-  if(t==='riepilogo') renderRiepilogo();
-  if(t==='gestisci') renderGestisci();
+  // Ri-renderizza SOLO se i dati sono cambiati dall'ultima visita
+  if(t==='presenze'  && dirty.presenze)  { renderPresenze();  dirty.presenze  = false; }
+  if(t==='argomenti' && dirty.argomenti) { renderArgomenti(); dirty.argomenti = false; }
+  if(t==='voti'      && dirty.voti)      { renderVoti();      dirty.voti      = false; }
+  if(t==='riepilogo' && dirty.riepilogo) { renderRiepilogo(); dirty.riepilogo = false; }
+  if(t==='gestisci'  && dirty.gestisci)  { renderGestisci();  dirty.gestisci  = false; }
 }
 
 function openModal(id){ document.getElementById(id).classList.add('open'); }
@@ -544,11 +570,10 @@ function aggiungiStudente(){
   Object.keys(db[gruppo].presenze).forEach(d=>{ db[gruppo].presenze[d][id]='P'; });
   closeModal('modal-studente');
   aggiornaSelezioniStudenti();
-  renderGestisci();
-  if(SCRIPT_URL){
-    clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => saveToSheets(gruppo), 2000);
-  }
+  markDirty('gestisci'); markDirty('presenze'); markDirty('riepilogo');
+  renderGestisci(); dirty.gestisci = false;
+  scheduleSave('studenti');
+  scheduleSave('presenze');
 }
 
 function renderGestisci(){
@@ -597,11 +622,11 @@ function confermaEliminaStudente(){
   _eliminaGruppo = null;
   closeModal('modal-elimina-studente');
   aggiornaSelezioniStudenti();
-  renderGestisci();
-  if(SCRIPT_URL){
-    clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => saveToSheets(gruppo), 2000);
-  }
+  markDirtyAll();
+  renderGestisci(); dirty.gestisci = false;
+  scheduleSave('studenti');
+  scheduleSave('presenze');
+  scheduleSave('voti');
 }
 
 function aggiornaSelezioniStudenti(){
@@ -651,7 +676,8 @@ function renderPresenze(){
 function cambiaStato(data,sid,val){
   if(!G().presenze[data]) G().presenze[data]={};
   G().presenze[data][sid]=val;
-  scheduleSave();
+  markDirty('riepilogo');
+  scheduleSave('presenze');
 }
 
 // ─── ARGOMENTI ───────────────────────────────────────────
@@ -672,8 +698,9 @@ function aggiungiArgomento(){
   G().argomenti.push({id:'a'+Date.now(),data,titolo,note:document.getElementById('m-arg-note').value.trim()});
   G().argomenti.sort((a,b)=>a.data.localeCompare(b.data));
   closeModal('modal-argomento');
-  renderArgomenti();
-  scheduleSave();
+  markDirty('riepilogo');
+  renderArgomenti(); dirty.argomenti = false;
+  scheduleSave('argomenti');
 }
 
 function renderArgomenti(){
@@ -696,8 +723,9 @@ function renderArgomenti(){
 
 function eliminaArgomento(id){
   db[gruppoCorrente].argomenti=G().argomenti.filter(a=>a.id!==id);
-  renderArgomenti();
-  scheduleSave();
+  markDirty('riepilogo');
+  renderArgomenti(); dirty.argomenti = false;
+  scheduleSave('argomenti');
 }
 
 function apriModificaArgomento(id){
@@ -729,8 +757,9 @@ function salvaModificaArgomento(){
   G().argomenti[idx] = { id, data, titolo, note: document.getElementById('m-mod-arg-note').value.trim() };
   G().argomenti.sort((a,b) => a.data.localeCompare(b.data));
   closeModal('modal-modifica-argomento');
-  renderArgomenti();
-  scheduleSave();
+  markDirty('riepilogo');
+  renderArgomenti(); dirty.argomenti = false;
+  scheduleSave('argomenti');
 }
 
 // ─── VOTI ────────────────────────────────────────────────
@@ -753,8 +782,9 @@ function aggiungiVoto(){
   G().voti.push({id:'v'+Date.now(),sid,data,materia,val,note:document.getElementById('m-voto-note').value.trim()});
   G().voti.sort((a,b)=>a.data.localeCompare(b.data));
   closeModal('modal-voto');
-  renderVoti();
-  scheduleSave();
+  markDirty('riepilogo');
+  renderVoti(); dirty.voti = false;
+  scheduleSave('voti');
 }
 
 function renderVoti(){
@@ -779,8 +809,9 @@ function renderVoti(){
 
 function eliminaVoto(id){
   db[gruppoCorrente].voti=G().voti.filter(v=>v.id!==id);
-  renderVoti();
-  scheduleSave();
+  markDirty('riepilogo');
+  renderVoti(); dirty.voti = false;
+  scheduleSave('voti');
 }
 
 function apriModificaVoto(id){
@@ -811,8 +842,9 @@ function salvaModificaVoto(){
   G().voti[idx] = { id, sid, data, materia, val, note: document.getElementById('m-mod-voto-note').value.trim() };
   G().voti.sort((a,b) => a.data.localeCompare(b.data));
   closeModal('modal-modifica-voto');
-  renderVoti();
-  scheduleSave();
+  markDirty('riepilogo');
+  renderVoti(); dirty.voti = false;
+  scheduleSave('voti');
 }
 
 // ─── RIEPILOGO ───────────────────────────────────────────
