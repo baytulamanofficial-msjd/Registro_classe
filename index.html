@@ -720,7 +720,7 @@ function renderPresenze(){
       if(isFutura) return`<td style="background:#0a0a0a;"></td>`;
       const stato=G().presenze[d]?.[s.id]||'P';
       const col=stato==='P'?'#5DCAA5':stato==='A'?'#f09595':'#EF9F27';
-      return`<td><select onchange="cambiaStato('${d}','${s.id}',this.value)" style="font-size:12px;border:none;background:none;color:${col};font-weight:500;cursor:pointer;padding:2px 4px;">
+      return`<td><select onchange="cambiaStato('${d}','${s.id}',this.value);this.style.color=this.value==='P'?'#5DCAA5':this.value==='A'?'#f09595':'#EF9F27'" style="font-size:12px;border:none;background:none;color:${col};font-weight:500;cursor:pointer;padding:2px 4px;">
         <option value="P" ${stato==='P'?'selected':''}>P</option>
         <option value="A" ${stato==='A'?'selected':''}>A</option>
         <option value="R" ${stato==='R'?'selected':''}>R</option>
