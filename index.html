@@ -67,10 +67,49 @@ select option{background:#1a1a1a;color:#e8e6e0;}
 .day-label .dw{font-size:9px;letter-spacing:.06em;margin-top:1px;}
 .info-box{background:#111;border:.5px solid #2a2a1a;border-radius:8px;padding:1rem;font-size:12px;color:#888;line-height:1.7;margin-bottom:1rem;}
 .info-box code{background:#1e1e1e;padding:2px 6px;border-radius:4px;color:#EF9F27;font-size:11px;}
+
+.app{position:relative;}
+.theme-toggle{
+  position:absolute; top:14px; right:14px;
+  width:36px; height:36px; border-radius:10px;
+  border:.5px solid #333; background:#1a1a1a; color:#e8e6e0;
+  cursor:pointer; font-size:16px;
+}
+.theme-toggle:hover{background:#252525;border-color:#555;}
+
+body.light-theme{background:#f5f6f8;color:#1a1a1a;}
+body.light-theme .mosque-name{color:#666;}
+body.light-theme .registro-title{color:#141414;}
+body.light-theme .gruppo-select,
+body.light-theme .top-bar select,
+body.light-theme .top-bar input[type=text],
+body.light-theme input[type=date],
+body.light-theme .btn,
+body.light-theme .modal input,
+body.light-theme .modal select,
+body.light-theme .modal textarea,
+body.light-theme select option{
+  background:#fff;color:#1a1a1a;border-color:#cfcfcf;
+}
+body.light-theme .btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+body.light-theme .tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;}
+body.light-theme .tab{color:#666;}
+body.light-theme .tabs{border-bottom-color:#ddd;}
+body.light-theme th{color:#666;border-bottom-color:#ddd;}
+body.light-theme td{color:#333;border-bottom-color:#eee;}
+body.light-theme tr:hover td{background:#f7f7f7;}
+body.light-theme .stat-card,
+body.light-theme .info-box{background:#fff;border-color:#ddd;color:#666;}
+body.light-theme .stat-val{color:#1a1a1a;}
+body.light-theme .modal{background:#fff;border-color:#ddd;}
+body.light-theme .modal h3{color:#1a1a1a;}
+body.light-theme .modal-bg{background:rgba(0,0,0,.45);}
+body.light-theme .theme-toggle{background:#fff;color:#1a1a1a;border-color:#cfcfcf;}
 </style>
 </head>
 <body>
 <div class="app">
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambia tema">☀️</button>
 
 <div class="mosque-name">Baytul Aman Monza</div>
 <div class="registro-title">Registro Elettronico</div>
@@ -332,6 +371,23 @@ const GIORNI_LEZIONE = [6, 0, 1, 2]; // sab, dom, lun, mar
 const NOMI_GG = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 const COLORI_GG = {6:'#7a6a4a', 0:'#5a7a5a', 1:'#4a6a7a', 2:'#6a4a7a'};
 const MESI_NOMI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const THEME_KEY = 'registro_theme';
+
+function applyTheme(theme){
+  const light = theme === 'light';
+  document.body.classList.toggle('light-theme', light);
+  const btn = document.getElementById('theme-toggle');
+  if(btn){
+    btn.textContent = light ? '🌙' : '☀️';
+    btn.title = light ? 'Passa al tema scuro' : 'Passa al tema chiaro';
+  }
+}
+
+function toggleTheme(){
+  const next = document.body.classList.contains('light-theme') ? 'dark' : 'light';
+  applyTheme(next);
+  try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+}
 
 // ─── DATABASE LOCALE ─────────────────────────────────────
 const db = {
@@ -945,6 +1001,9 @@ const meseCorriente = new Date().getMonth();
 });
 
 aggiornaSelezioniStudenti();
+
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+try{ applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); }catch(e){ applyTheme('dark'); }
 
 if(SCRIPT_URL){
   setSyncStatus('loading', 'Connessione al database...');
