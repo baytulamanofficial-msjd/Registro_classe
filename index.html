@@ -70,34 +70,82 @@ select option{background:#1a1a1a;color:#e8e6e0;}
 
 .app{position:relative;}
 .intro-screen{
-  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   padding:24px;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(93,202,165,.14), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(239,159,39,.14), transparent 40%),
-    linear-gradient(180deg, #0a0a0a 0%, #121212 100%);
+  background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
 }
 .intro-card{
-  width:min(560px, 96vw); background:#141414; border:.5px solid #333;
-  border-radius:16px; padding:30px 26px; text-align:center;
-  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  width:min(480px, 94vw);
+  background:#0a0a0a;
+  border:1px solid #1e1e1e;
+  border-radius:16px;
+  padding:44px 36px 36px;
+  text-align:center;
 }
-.intro-title{font-size:26px;color:#e8e6e0;font-weight:600;margin-bottom:10px;}
-.intro-sub{font-size:14px;color:#999;line-height:1.6;margin-bottom:20px;}
-.intro-visual{font-size:50px;line-height:1;margin-bottom:14px;}
-.intro-divider{height:1px;background:linear-gradient(90deg, transparent, #333, transparent);margin:16px 0;}
+.intro-mosque{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#3a6fa8;
+  margin-bottom:28px;
+}
+.intro-title{
+  font-size:28px;
+  font-weight:500;
+  color:#e8e6e0;
+  letter-spacing:-.3px;
+  margin-bottom:10px;
+  line-height:1.2;
+}
+.intro-sub{
+  font-size:13px;
+  color:#555;
+  line-height:1.7;
+  margin-bottom:32px;
+  max-width:320px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.intro-divider{
+  height:1px;
+  background:#1a1a1a;
+  margin:0 0 28px;
+}
 .intro-features{
-  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0 0 20px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:36px;
+  flex-wrap:wrap;
 }
 .intro-chip{
-  font-size:12px; color:#b8b6b0; background:#1c1c1c; border:.5px solid #2f2f2f;
-  border-radius:999px; padding:7px 10px;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.06em;
+  color:#444;
+  background:none;
+  border:.5px solid #222;
+  border-radius:4px;
+  padding:5px 12px;
 }
 .btn-enter{
-  padding:10px 20px; font-size:14px; border-radius:10px;
-  border:.5px solid #e8e6e0; background:#e8e6e0; color:#111; cursor:pointer;
+  width:100%;
+  padding:13px 20px;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.02em;
+  border-radius:8px;
+  border:none;
+  background:#1a3a6e;
+  color:#c8daf5;
+  cursor:pointer;
+  transition:background .15s;
 }
-.btn-enter:hover{background:#fff;}
+.btn-enter:hover{background:#1e4485;}
 .theme-toggle{
   position:absolute; top:14px; right:14px;
   width:36px; height:36px; border-radius:10px;
@@ -135,19 +183,17 @@ body.light-theme .modal h3{color:#1a1a1a;}
 body.light-theme .modal-bg{background:rgba(0,0,0,.45);}
 body.light-theme .theme-toggle{background:#fff;color:#1a1a1a;border-color:#cfcfcf;}
 body.light-theme .empty{color:#666;}
-body.light-theme .intro-card{background:#fff;border-color:#ddd;}
+body.light-theme .intro-card{background:#fff;border-color:#e0e0e0;}
 body.light-theme .intro-title{color:#1a1a1a;}
-body.light-theme .intro-sub{color:#666;}
+body.light-theme .intro-sub{color:#777;}
+body.light-theme .intro-mosque{color:#1a3a6e;}
 body.light-theme .intro-screen{
-  background:
-    radial-gradient(circle at 15% 20%, rgba(93,202,165,.2), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(239,159,39,.2), transparent 40%),
-    linear-gradient(180deg, #f8f9fb 0%, #f2f4f7 100%);
+  background: linear-gradient(135deg, #1a3a6e 0%, #1e4a8e 50%, #1a3a6e 100%);
 }
-body.light-theme .intro-divider{background:linear-gradient(90deg, transparent, #d9d9d9, transparent);}
-body.light-theme .intro-chip{background:#fff;border-color:#ddd;color:#555;}
-body.light-theme .btn-enter{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
-body.light-theme .btn-enter:hover{background:#000;}
+body.light-theme .intro-divider{background:#ebebeb;}
+body.light-theme .intro-chip{border-color:#ddd;color:#777;}
+body.light-theme .btn-enter{background:#1a3a6e;color:#c8daf5;}
+body.light-theme .btn-enter:hover{background:#1e4485;}
 
 /* Ensure readability for elements styled inline in JS templates */
 body.light-theme [style*="color:#e8e6e0"]{color:#1a1a1a !important;}
@@ -162,17 +208,17 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
 <body>
 <div id="intro-screen" class="intro-screen">
   <div class="intro-card">
-    <div class="mosque-name">Baytul Aman Monza</div>
-    <div class="intro-visual" aria-hidden="true">📘🕌✨</div>
+    <div class="intro-mosque">Baytul Aman Monza</div>
     <h1 class="intro-title">Registro Elettronico</h1>
-    <p class="intro-sub">Benvenuto. Qui puoi gestire presenze, argomenti e voti in modo semplice e ordinato.</p>
+    <p class="intro-sub">Gestione presenze, argomenti e valutazioni per le classi della moschea.</p>
     <div class="intro-divider"></div>
     <div class="intro-features">
       <div class="intro-chip">Presenze</div>
       <div class="intro-chip">Argomenti</div>
       <div class="intro-chip">Voti</div>
+      <div class="intro-chip">Riepilogo</div>
     </div>
-    <button class="btn-enter" type="button" onclick="enterApp()">Entra</button>
+    <button class="btn-enter" type="button" onclick="enterApp()">Accedi al registro</button>
   </div>
 </div>
 
