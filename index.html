@@ -243,9 +243,9 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('presenze')">Presenze</button>
-  <button class="tab" onclick="switchTab('note')">Note</button>
   <button class="tab" onclick="switchTab('argomenti')">Argomenti</button>
   <button class="tab" onclick="switchTab('voti')">Voti</button>
+  <button class="tab" onclick="switchTab('note')">Note</button>
   <button class="tab" onclick="switchTab('riepilogo')">Riepilogo</button>
   <button class="tab" onclick="switchTab('gestisci')">Gestisci</button>
 </div>
@@ -274,7 +274,7 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
     <button class="btn" onclick="openModalNota()">+ Nota</button>
   </div>
   <div class="table-wrap">
-    <table><thead><tr><th>Data</th><th>Titolo</th><th>Nota</th><th></th></tr></thead>
+    <table><thead><tr><th>Data</th><th>Alunno</th><th>Nota</th><th></th></tr></thead>
     <tbody id="tbody-note"></tbody></table>
   </div>
 </div>
@@ -326,7 +326,7 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
   </div>
   <div id="stats-generali" class="stats-grid"></div>
   <div class="table-wrap">
-    <table><thead><tr><th>Studente</th><th>Presenti</th><th>Assenti</th><th>Ritardi</th><th>% presenze</th><th>Media voti</th></tr></thead>
+    <table><thead><tr><th>Studente</th><th>Presenti</th><th>Assenti</th><th>Ritardi</th><th>% presenze</th><th>Media voti</th><th>Note</th></tr></thead>
     <tbody id="tbody-riepilogo"></tbody></table>
   </div>
 </div>
@@ -436,8 +436,8 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
     <h3>Aggiungi nota</h3>
     <label>Data</label>
     <input type="date" id="m-nota-data">
-    <label>Titolo</label>
-    <input type="text" id="m-nota-titolo" placeholder="Es. Avviso, promemoria, osservazione">
+    <label>Alunno</label>
+    <select id="m-nota-studente"></select>
     <label>Testo</label>
     <textarea id="m-nota-testo" placeholder="Scrivi qui la nota..."></textarea>
     <div class="modal-actions">
@@ -734,13 +734,13 @@ function cambiaGruppo(){
 }
 
 function renderTabCorrente(){
-  const tabs=['presenze','note','argomenti','voti','riepilogo','gestisci'];
+  const tabs=['presenze','argomenti','voti','note','riepilogo','gestisci'];
   const idx=[...document.querySelectorAll('.tab')].findIndex(b=>b.classList.contains('active'));
   switchTab(tabs[idx]||'presenze');
 }
 
 function switchTab(t){
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['presenze','note','argomenti','voti','riepilogo','gestisci'][i]===t));
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['presenze','argomenti','voti','note','riepilogo','gestisci'][i]===t));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   // Ri-renderizza SOLO se i dati sono cambiati dall'ultima visita
@@ -822,6 +822,7 @@ function confermaEliminaStudente(){
   db[gruppo].studenti = db[gruppo].studenti.filter(s => s.id !== id);
   Object.keys(db[gruppo].presenze).forEach(d => { delete db[gruppo].presenze[d][id]; });
   db[gruppo].voti = db[gruppo].voti.filter(v => v.sid !== id);
+  db[gruppo].note = db[gruppo].note.filter(n => n.sid !== id);
   _eliminaId = null;
   _eliminaGruppo = null;
   closeModal('modal-elimina-studente');
@@ -946,20 +947,23 @@ function cambiaStato(data,sid,val){
 
 // ─── NOTE ───────────────────────────────────────────
 function openModalNota(){
+  if(!G().studenti.length) return;
   document.getElementById('m-nota-data').value = oggi();
-  document.getElementById('m-nota-titolo').value = '';
+  const sel = document.getElementById('m-nota-studente');
+  sel.innerHTML = G().studenti.map(s=>`<option value="${s.id}">${s.nome}</option>`).join('');
   document.getElementById('m-nota-testo').value = '';
   openModal('modal-nota');
 }
 
 function aggiungiNota(){
   const data = document.getElementById('m-nota-data').value;
-  const titolo = document.getElementById('m-nota-titolo').value.trim();
+  const sid = document.getElementById('m-nota-studente').value;
   const testo = document.getElementById('m-nota-testo').value.trim();
-  if(!data || !titolo) return;
-  G().note.push({ id:'n'+Date.now(), data, titolo, testo });
+  if(!data || !sid) return;
+  G().note.push({ id:'n'+Date.now(), data, sid, testo });
   G().note.sort((a,b)=>b.data.localeCompare(a.data));
   closeModal('modal-nota');
+  markDirty('riepilogo');
   renderNote(); dirty.note = false;
 }
 
@@ -972,7 +976,7 @@ function renderNote(){
   }
   tbody.innerHTML = elenco.map(n => `<tr>
     <td>${fmtDisplay(n.data)} <span style="color:${COLORI_GG[getDow(n.data)]||'#666'};font-size:11px">${NOMI_GG[getDow(n.data)]}</span></td>
-    <td style="font-weight:500;color:#e8e6e0">${n.titolo}</td>
+    <td style="font-weight:500;color:#e8e6e0">${G().studenti.find(s=>s.id===n.sid)?.nome || '—'}</td>
     <td style="color:#666;font-size:12px">${n.testo||'—'}</td>
     <td><button class="btn danger" style="padding:3px 8px;font-size:11px" onclick="eliminaNota('${n.id}')">Elimina</button></td>
   </tr>`).join('');
@@ -980,6 +984,7 @@ function renderNote(){
 
 function eliminaNota(id){
   db[gruppoCorrente].note = G().note.filter(n => n.id !== id);
+  markDirty('riepilogo');
   renderNote(); dirty.note = false;
 }
 
@@ -1163,7 +1168,7 @@ function renderRiepilogo(){
     <div class="stat-card"><div class="stat-label">Argomenti svolti</div><div class="stat-val">${G().argomenti.filter(a=>{const d=new Date(a.data+'T12:00:00');return d.getFullYear()===anno&&d.getMonth()===mese;}).length}</div></div>
   `;
   const tbody=document.getElementById('tbody-riepilogo');
-  if(!G().studenti.length||!totLezioni){tbody.innerHTML='<tr><td class="empty" colspan="6">Nessun dato disponibile</td></tr>';return;}
+  if(!G().studenti.length||!totLezioni){tbody.innerHTML='<tr><td class="empty" colspan="7">Nessun dato disponibile</td></tr>';return;}
   tbody.innerHTML=G().studenti.map(s=>{
     let p=0,a=0,r=0;
     date.forEach(d=>{const st=G().presenze[d]?.[s.id]||'P';if(st==='P')p++;else if(st==='A')a++;else r++;});
@@ -1171,11 +1176,13 @@ function renderRiepilogo(){
     const col=pct>=90?'#5DCAA5':pct>=75?'#EF9F27':'#f09595';
     const sv=G().voti.filter(v=>{const d=new Date(v.data+'T12:00:00');return v.sid===s.id&&d.getFullYear()===anno&&d.getMonth()===mese;});
     const media=sv.length?(sv.reduce((acc,v)=>acc+v.val,0)/sv.length).toFixed(1):'—';
+    const noteCount=G().note.filter(n=>n.sid===s.id).length;
     return`<tr>
       <td style="font-weight:500;color:#e8e6e0">${s.nome}</td>
       <td>${p} / ${totLezioni}</td><td>${a}</td><td>${r}</td>
       <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div><span style="font-size:12px;color:${col};font-weight:500;min-width:36px">${pct}%</span></div></td>
       <td>${media==='—'?'<span style="color:#555">—</span>':`<span style="font-weight:500;color:${parseFloat(media)>=6?'#5DCAA5':parseFloat(media)>=5?'#EF9F27':'#f09595'}">${media}</span>`}</td>
+      <td><span style="font-weight:500;color:#e8e6e0">${noteCount}</span></td>
     </tr>`;
   }).join('');
 }
