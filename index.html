@@ -70,34 +70,82 @@ select option{background:#1a1a1a;color:#e8e6e0;}
 
 .app{position:relative;}
 .intro-screen{
-  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   padding:24px;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(93,202,165,.14), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(239,159,39,.14), transparent 40%),
-    linear-gradient(180deg, #0a0a0a 0%, #121212 100%);
+  background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
 }
 .intro-card{
-  width:min(560px, 96vw); background:#141414; border:.5px solid #333;
-  border-radius:16px; padding:30px 26px; text-align:center;
-  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  width:min(480px, 94vw);
+  background:#0a0a0a;
+  border:1px solid #1e1e1e;
+  border-radius:16px;
+  padding:44px 36px 36px;
+  text-align:center;
 }
-.intro-title{font-size:26px;color:#e8e6e0;font-weight:600;margin-bottom:10px;}
-.intro-sub{font-size:14px;color:#999;line-height:1.6;margin-bottom:20px;}
-.intro-visual{font-size:50px;line-height:1;margin-bottom:14px;}
-.intro-divider{height:1px;background:linear-gradient(90deg, transparent, #333, transparent);margin:16px 0;}
+.intro-mosque{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#3a6fa8;
+  margin-bottom:28px;
+}
+.intro-title{
+  font-size:28px;
+  font-weight:500;
+  color:#e8e6e0;
+  letter-spacing:-.3px;
+  margin-bottom:10px;
+  line-height:1.2;
+}
+.intro-sub{
+  font-size:13px;
+  color:#555;
+  line-height:1.7;
+  margin-bottom:32px;
+  max-width:320px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.intro-divider{
+  height:1px;
+  background:#1a1a1a;
+  margin:0 0 28px;
+}
 .intro-features{
-  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0 0 20px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:36px;
+  flex-wrap:wrap;
 }
 .intro-chip{
-  font-size:12px; color:#b8b6b0; background:#1c1c1c; border:.5px solid #2f2f2f;
-  border-radius:999px; padding:7px 10px;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.06em;
+  color:#444;
+  background:none;
+  border:.5px solid #222;
+  border-radius:4px;
+  padding:5px 12px;
 }
 .btn-enter{
-  padding:10px 20px; font-size:14px; border-radius:10px;
-  border:.5px solid #e8e6e0; background:#e8e6e0; color:#111; cursor:pointer;
+  width:100%;
+  padding:13px 20px;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.02em;
+  border-radius:8px;
+  border:none;
+  background:#1a3a6e;
+  color:#c8daf5;
+  cursor:pointer;
+  transition:background .15s;
 }
-.btn-enter:hover{background:#fff;}
+.btn-enter:hover{background:#1e4485;}
 .theme-toggle{
   position:absolute; top:14px; right:14px;
   width:36px; height:36px; border-radius:10px;
@@ -135,19 +183,17 @@ body.light-theme .modal h3{color:#1a1a1a;}
 body.light-theme .modal-bg{background:rgba(0,0,0,.45);}
 body.light-theme .theme-toggle{background:#fff;color:#1a1a1a;border-color:#cfcfcf;}
 body.light-theme .empty{color:#666;}
-body.light-theme .intro-card{background:#fff;border-color:#ddd;}
+body.light-theme .intro-card{background:#fff;border-color:#e0e0e0;}
 body.light-theme .intro-title{color:#1a1a1a;}
-body.light-theme .intro-sub{color:#666;}
+body.light-theme .intro-sub{color:#777;}
+body.light-theme .intro-mosque{color:#1a3a6e;}
 body.light-theme .intro-screen{
-  background:
-    radial-gradient(circle at 15% 20%, rgba(93,202,165,.2), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(239,159,39,.2), transparent 40%),
-    linear-gradient(180deg, #f8f9fb 0%, #f2f4f7 100%);
+  background: linear-gradient(135deg, #1a3a6e 0%, #1e4a8e 50%, #1a3a6e 100%);
 }
-body.light-theme .intro-divider{background:linear-gradient(90deg, transparent, #d9d9d9, transparent);}
-body.light-theme .intro-chip{background:#fff;border-color:#ddd;color:#555;}
-body.light-theme .btn-enter{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
-body.light-theme .btn-enter:hover{background:#000;}
+body.light-theme .intro-divider{background:#ebebeb;}
+body.light-theme .intro-chip{border-color:#ddd;color:#777;}
+body.light-theme .btn-enter{background:#1a3a6e;color:#c8daf5;}
+body.light-theme .btn-enter:hover{background:#1e4485;}
 
 /* Ensure readability for elements styled inline in JS templates */
 body.light-theme [style*="color:#e8e6e0"]{color:#1a1a1a !important;}
@@ -162,17 +208,17 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
 <body>
 <div id="intro-screen" class="intro-screen">
   <div class="intro-card">
-    <div class="mosque-name">Baytul Aman Monza</div>
-    <div class="intro-visual" aria-hidden="true">📘🕌✨</div>
+    <div class="intro-mosque">Baytul Aman Monza</div>
     <h1 class="intro-title">Registro Elettronico</h1>
-    <p class="intro-sub">Benvenuto. Qui puoi gestire presenze, argomenti e voti in modo semplice e ordinato.</p>
+    <p class="intro-sub">Gestione presenze, argomenti e valutazioni per le classi della moschea.</p>
     <div class="intro-divider"></div>
     <div class="intro-features">
       <div class="intro-chip">Presenze</div>
       <div class="intro-chip">Argomenti</div>
       <div class="intro-chip">Voti</div>
+      <div class="intro-chip">Riepilogo</div>
     </div>
-    <button class="btn-enter" type="button" onclick="enterApp()">Entra</button>
+    <button class="btn-enter" type="button" onclick="enterApp()">Accedi al registro</button>
   </div>
 </div>
 
@@ -199,6 +245,7 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
   <button class="tab active" onclick="switchTab('presenze')">Presenze</button>
   <button class="tab" onclick="switchTab('argomenti')">Argomenti</button>
   <button class="tab" onclick="switchTab('voti')">Voti</button>
+  <button class="tab" onclick="switchTab('note')">Note</button>
   <button class="tab" onclick="switchTab('riepilogo')">Riepilogo</button>
   <button class="tab" onclick="switchTab('gestisci')">Gestisci</button>
 </div>
@@ -218,6 +265,17 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
   </div>
   <div class="table-wrap">
     <table><thead id="thead-presenze"></thead><tbody id="tbody-presenze"></tbody></table>
+  </div>
+</div>
+
+<!-- ARGOMENTI -->
+<div id="tab-note" class="section">
+  <div class="top-bar">
+    <button class="btn" onclick="openModalNota()">+ Nota</button>
+  </div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Data</th><th>Alunno</th><th>Nota</th><th></th></tr></thead>
+    <tbody id="tbody-note"></tbody></table>
   </div>
 </div>
 
@@ -268,7 +326,7 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
   </div>
   <div id="stats-generali" class="stats-grid"></div>
   <div class="table-wrap">
-    <table><thead><tr><th>Studente</th><th>Presenti</th><th>Assenti</th><th>Ritardi</th><th>% presenze</th><th>Media voti</th></tr></thead>
+    <table><thead><tr><th>Studente</th><th>Presenti</th><th>Assenti</th><th>Ritardi</th><th>% presenze</th><th>Media voti</th><th>Note</th></tr></thead>
     <tbody id="tbody-riepilogo"></tbody></table>
   </div>
 </div>
@@ -372,6 +430,23 @@ body.light-theme [style*="border:.5px solid #333"]{border:.5px solid #d6d6d6 !im
   </div>
 </div>
 
+<!-- MODAL NOTA -->
+<div class="modal-bg" id="modal-nota">
+  <div class="modal">
+    <h3>Aggiungi nota</h3>
+    <label>Data</label>
+    <input type="date" id="m-nota-data">
+    <label>Alunno</label>
+    <select id="m-nota-studente"></select>
+    <label>Testo</label>
+    <textarea id="m-nota-testo" placeholder="Scrivi qui la nota..."></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-nota')">Annulla</button>
+      <button class="btn primary" onclick="aggiungiNota()">Salva</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL VOTO -->
 <div class="modal-bg" id="modal-voto">
   <div class="modal">
@@ -466,20 +541,20 @@ function enterApp(){
 
 // ─── DATABASE LOCALE ─────────────────────────────────────
 const db = {
-  A: { studenti:[], presenze:{}, argomenti:[], voti:[] },
-  B: { studenti:[], presenze:{}, argomenti:[], voti:[] }
+  A: { studenti:[], presenze:{}, note:[], argomenti:[], voti:[] },
+  B: { studenti:[], presenze:{}, note:[], argomenti:[], voti:[] }
 };
 let gruppoCorrente = 'A';
 function G(){ return db[gruppoCorrente]; }
 
 // ─── DIRTY FLAG — ri-renderizza tab solo se i dati sono cambiati ─────
-const dirty = { presenze: true, argomenti: true, voti: true, riepilogo: true, gestisci: true };
+const dirty = { presenze: true, note: true, argomenti: true, voti: true, riepilogo: true, gestisci: true };
 function markDirty(sezione){ dirty[sezione] = true; }
 function markDirtyAll(){ Object.keys(dirty).forEach(k => dirty[k] = true); }
 function dirtyAll(){ markDirtyAll(); } // alias usato dopo loadFromSheets
 
 // ─── GOOGLE SHEETS CONFIG ────────────────────────────────
-let SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_TAdD85gDUkMTbFSJEL9t4XS30Fs31166rlefN23CWRttYpJLgANZDDrl7xlJKtH2/exec";
+let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHP7H0jFPvOxwjn7_0ILPgW4xxvaVXUAB6SnXAscGs6vlZKKDy0Ns8rKvRw4C4Gp0_/exec";
 
 function setSyncStatus(stato, msg) {
   const dot = document.getElementById('sync-dot');
@@ -529,14 +604,6 @@ async function loadFromSheets(gruppo) {
         note:    String(v.note    || '')
       }));
     }
-    if (data.note && data.note.length) {
-      db[gruppo].note = data.note.map(n => ({
-        id:    String(n.id    || ''),
-        data:  String(n.data  || '').substring(0, 10),
-        sid:   String(n.sid   || ''),
-        testo: String(n.testo || '')
-      }));
-    }
     setSyncStatus('ok', 'Sincronizzato — ' + new Date().toLocaleTimeString('it-IT'));
     // Invalida tutte le tab così al prossimo accesso si ri-renderizzano
     dirtyAll();
@@ -582,8 +649,7 @@ function scheduleSave(sezione, gruppo = gruppoCorrente) {
           studenti:  'saveStudenti',
           presenze:  'savePresenze',
           argomenti: 'saveArgomenti',
-          voti:      'saveVoti',
-          note:      'saveNote'
+          voti:      'saveVoti'
         };
         await gsFetch(actionMap[sezione], gruppo, g[sezione]);
       }
@@ -604,7 +670,6 @@ async function syncNow() {
     await gsFetch('savePresenze',  gruppoCorrente, g.presenze);
     await gsFetch('saveArgomenti', gruppoCorrente, g.argomenti);
     await gsFetch('saveVoti',      gruppoCorrente, g.voti);
-    await gsFetch('saveNote',      gruppoCorrente, g.note);
     setSyncStatus('ok', 'Salvato — ' + new Date().toLocaleTimeString('it-IT'));
   } catch(e) {
     setSyncStatus('error', 'Errore: ' + e.message);
@@ -669,17 +734,18 @@ function cambiaGruppo(){
 }
 
 function renderTabCorrente(){
-  const tabs=['presenze','argomenti','voti','riepilogo','gestisci'];
+  const tabs=['presenze','argomenti','voti','note','riepilogo','gestisci'];
   const idx=[...document.querySelectorAll('.tab')].findIndex(b=>b.classList.contains('active'));
   switchTab(tabs[idx]||'presenze');
 }
 
 function switchTab(t){
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['presenze','argomenti','voti','riepilogo','gestisci'][i]===t));
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['presenze','argomenti','voti','note','riepilogo','gestisci'][i]===t));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   // Ri-renderizza SOLO se i dati sono cambiati dall'ultima visita
   if(t==='presenze'  && dirty.presenze)  { renderPresenze();  dirty.presenze  = false; }
+  if(t==='note'      && dirty.note)      { renderNote();      dirty.note      = false; }
   if(t==='argomenti' && dirty.argomenti) { renderArgomenti(); dirty.argomenti = false; }
   if(t==='voti'      && dirty.voti)      { renderVoti();      dirty.voti      = false; }
   if(t==='riepilogo' && dirty.riepilogo) { renderRiepilogo(); dirty.riepilogo = false; }
@@ -756,6 +822,7 @@ function confermaEliminaStudente(){
   db[gruppo].studenti = db[gruppo].studenti.filter(s => s.id !== id);
   Object.keys(db[gruppo].presenze).forEach(d => { delete db[gruppo].presenze[d][id]; });
   db[gruppo].voti = db[gruppo].voti.filter(v => v.sid !== id);
+  db[gruppo].note = db[gruppo].note.filter(n => n.sid !== id);
   _eliminaId = null;
   _eliminaGruppo = null;
   closeModal('modal-elimina-studente');
@@ -878,7 +945,7 @@ function cambiaStato(data,sid,val){
   scheduleSave('presenze', gruppoCorrente);
 }
 
-// ─── NOTE ────────────────────────────────────────────────
+// ─── NOTE ───────────────────────────────────────────
 function openModalNota(){
   if(!G().studenti.length) return;
   document.getElementById('m-nota-data').value = oggi();
@@ -889,41 +956,36 @@ function openModalNota(){
 }
 
 function aggiungiNota(){
-  const data  = document.getElementById('m-nota-data').value;
-  const sid   = document.getElementById('m-nota-studente').value;
+  const data = document.getElementById('m-nota-data').value;
+  const sid = document.getElementById('m-nota-studente').value;
   const testo = document.getElementById('m-nota-testo').value.trim();
   if(!data || !sid) return;
   G().note.push({ id:'n'+Date.now(), data, sid, testo });
-  G().note.sort((a,b) => b.data.localeCompare(a.data));
+  G().note.sort((a,b)=>b.data.localeCompare(a.data));
   closeModal('modal-nota');
   markDirty('riepilogo');
   renderNote(); dirty.note = false;
-  scheduleSave('note', gruppoCorrente);
 }
 
 function renderNote(){
-  const tbody  = document.getElementById('tbody-note');
-  const elenco = [...G().note].sort((a,b) => b.data.localeCompare(a.data));
+  const tbody = document.getElementById('tbody-note');
+  const elenco = [...G().note].sort((a,b)=>b.data.localeCompare(a.data));
   if(!elenco.length){
     tbody.innerHTML = '<tr><td class="empty" colspan="4">Nessuna nota inserita</td></tr>';
     return;
   }
-  tbody.innerHTML = elenco.map(n => {
-    const nomeStudente = G().studenti.find(s => s.id === n.sid)?.nome || '—';
-    return `<tr>
-      <td>${fmtDisplay(n.data)} <span style="color:${COLORI_GG[getDow(n.data)]||'#666'};font-size:11px">${NOMI_GG[getDow(n.data)]}</span></td>
-      <td style="font-weight:500;color:#e8e6e0">${nomeStudente}</td>
-      <td style="color:#888;font-size:12px">${n.testo||'—'}</td>
-      <td><button class="btn danger" style="padding:3px 8px;font-size:11px" onclick="eliminaNota('${n.id}')">Elimina</button></td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = elenco.map(n => `<tr>
+    <td>${fmtDisplay(n.data)} <span style="color:${COLORI_GG[getDow(n.data)]||'#666'};font-size:11px">${NOMI_GG[getDow(n.data)]}</span></td>
+    <td style="font-weight:500;color:#e8e6e0">${G().studenti.find(s=>s.id===n.sid)?.nome || '—'}</td>
+    <td style="color:#666;font-size:12px">${n.testo||'—'}</td>
+    <td><button class="btn danger" style="padding:3px 8px;font-size:11px" onclick="eliminaNota('${n.id}')">Elimina</button></td>
+  </tr>`).join('');
 }
 
 function eliminaNota(id){
   db[gruppoCorrente].note = G().note.filter(n => n.id !== id);
   markDirty('riepilogo');
   renderNote(); dirty.note = false;
-  scheduleSave('note', gruppoCorrente);
 }
 
 // ─── ARGOMENTI ───────────────────────────────────────────
@@ -1106,7 +1168,7 @@ function renderRiepilogo(){
     <div class="stat-card"><div class="stat-label">Argomenti svolti</div><div class="stat-val">${G().argomenti.filter(a=>{const d=new Date(a.data+'T12:00:00');return d.getFullYear()===anno&&d.getMonth()===mese;}).length}</div></div>
   `;
   const tbody=document.getElementById('tbody-riepilogo');
-  if(!G().studenti.length||!totLezioni){tbody.innerHTML='<tr><td class="empty" colspan="6">Nessun dato disponibile</td></tr>';return;}
+  if(!G().studenti.length||!totLezioni){tbody.innerHTML='<tr><td class="empty" colspan="7">Nessun dato disponibile</td></tr>';return;}
   tbody.innerHTML=G().studenti.map(s=>{
     let p=0,a=0,r=0;
     date.forEach(d=>{const st=G().presenze[d]?.[s.id]||'P';if(st==='P')p++;else if(st==='A')a++;else r++;});
@@ -1114,11 +1176,13 @@ function renderRiepilogo(){
     const col=pct>=90?'#5DCAA5':pct>=75?'#EF9F27':'#f09595';
     const sv=G().voti.filter(v=>{const d=new Date(v.data+'T12:00:00');return v.sid===s.id&&d.getFullYear()===anno&&d.getMonth()===mese;});
     const media=sv.length?(sv.reduce((acc,v)=>acc+v.val,0)/sv.length).toFixed(1):'—';
+    const noteCount=G().note.filter(n=>n.sid===s.id).length;
     return`<tr>
       <td style="font-weight:500;color:#e8e6e0">${s.nome}</td>
       <td>${p} / ${totLezioni}</td><td>${a}</td><td>${r}</td>
       <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div><span style="font-size:12px;color:${col};font-weight:500;min-width:36px">${pct}%</span></div></td>
       <td>${media==='—'?'<span style="color:#555">—</span>':`<span style="font-weight:500;color:${parseFloat(media)>=6?'#5DCAA5':parseFloat(media)>=5?'#EF9F27':'#f09595'}">${media}</span>`}</td>
+      <td><span style="font-weight:500;color:#e8e6e0">${noteCount}</span></td>
     </tr>`;
   }).join('');
 }
