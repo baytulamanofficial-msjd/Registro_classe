@@ -649,7 +649,8 @@ function scheduleSave(sezione, gruppo = gruppoCorrente) {
           studenti:  'saveStudenti',
           presenze:  'savePresenze',
           argomenti: 'saveArgomenti',
-          voti:      'saveVoti'
+          voti:      'saveVoti',
+          note:      'saveNote'
         };
         await gsFetch(actionMap[sezione], gruppo, g[sezione]);
       }
@@ -670,6 +671,7 @@ async function syncNow() {
     await gsFetch('savePresenze',  gruppoCorrente, g.presenze);
     await gsFetch('saveArgomenti', gruppoCorrente, g.argomenti);
     await gsFetch('saveVoti',      gruppoCorrente, g.voti);
+    await gsFetch('saveNote',      gruppoCorrente, g.note);
     setSyncStatus('ok', 'Salvato — ' + new Date().toLocaleTimeString('it-IT'));
   } catch(e) {
     setSyncStatus('error', 'Errore: ' + e.message);
@@ -965,7 +967,10 @@ function aggiungiNota(){
   closeModal('modal-nota');
   markDirty('riepilogo');
   renderNote(); dirty.note = false;
+  scheduleSave('note', gruppoCorrente);
 }
+
+// ─── ARGOMENTI
 
 function renderNote(){
   const tbody = document.getElementById('tbody-note');
@@ -986,6 +991,7 @@ function eliminaNota(id){
   db[gruppoCorrente].note = G().note.filter(n => n.id !== id);
   markDirty('riepilogo');
   renderNote(); dirty.note = false;
+  scheduleSave('note', gruppoCorrente);
 }
 
 // ─── ARGOMENTI ───────────────────────────────────────────
