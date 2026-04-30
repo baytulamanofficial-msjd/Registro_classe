@@ -75,7 +75,7 @@ select option{background:#1a1a1a;color:#e8e6e0;}
   align-items:center;
   justify-content:center;
   padding:24px;
-  background: #121112;
+  background: #0c061f;
 }
 .intro-card{
   width:min(480px, 94vw);
@@ -602,6 +602,14 @@ async function loadFromSheets(gruppo) {
         materia: String(v.materia || ''),
         val:     parseFloat(v.val) || 0,
         note:    String(v.note    || '')
+      }));
+    }
+    if (data.note && data.note.length) {
+      db[gruppo].note = data.note.map(n => ({
+        id:    String(n.id    || ''),
+        data:  String(n.data  || '').substring(0, 10),
+        sid:   String(n.sid   || ''),
+        testo: String(n.testo || '')
       }));
     }
     setSyncStatus('ok', 'Sincronizzato — ' + new Date().toLocaleTimeString('it-IT'));
